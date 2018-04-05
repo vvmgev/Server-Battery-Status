@@ -1,6 +1,23 @@
 var http = require('http');
 var url = require('url');
-var data = {};
+var data = {
+	1111 : {
+		"id":1111,
+		"deviceName":"samsung galaxy s8",
+		"percentage":3
+	},
+	2222: {
+		"id":2222,
+		"deviceName":"samsung note 8",
+		"percentage":45
+	},
+	3333: {
+		"id":3333,
+		"deviceName":"iphone 7",
+		"percentage":56
+	}
+};
+var port = 8000
 
 
 http.createServer(function (req, res) {
@@ -8,7 +25,10 @@ http.createServer(function (req, res) {
   var query = url_parts.query;
   res.writeHead(200, {'Content-Type': 'text/plain'});
 
-  if(query.query === 'getData') {
+  if(query.type === 'getDevices') {
+	  var newData = getDevices(query)
+	res.end(JSON.stringify(newData));
+  } else if(query.query === 'getData') {
 		var newData = getData(query);
 		res.end(JSON.stringify(newData));
   } else {
@@ -17,9 +37,21 @@ http.createServer(function (req, res) {
 
   }
   console.log(data);
-}).listen(8080, '127.0.0.1');
-console.log('Server running at http://127.0.0.1:8080/');
+}).listen(port, '127.0.0.1');
+console.log(`Server running at http://127.0.0.1:${port}/`);
 
+
+function getDevices(query) {
+	var ids = JSON.parse(query.ids);
+	var devices = [];
+	for(var i = 0; i < ids.length; i++) {
+		var device = data[ids[i]];
+		if (device) {
+			devices.push(device);
+		}
+	}
+	return devices;
+}
 
 
 function saveData(query) {
