@@ -25,18 +25,24 @@ http.createServer(function (req, res) {
   var query = url_parts.query;
   res.writeHead(200, {'Content-Type': 'text/plain'});
 
+  console.log(query.type)
   if(query.type === 'getDevices') {
 	  var newData = getDevices(query)
 	res.end(JSON.stringify(newData));
-  } else if(query.query === 'getData') {
-		var newData = getData(query);
+  } else if(query.type === 'getDevice') {
+		var newData = getDevice(query);
 		res.end(JSON.stringify(newData));
-  } else {
+  }else if(query.type === 'addDevice') {
+		var newData = addDevice(query);
+		res.end(JSON.stringify(newData));
+  }else if(query.type === 'removeDevice') {
+		var newData = removeDevice(query);
+		res.end(JSON.stringify(newData));
+ } else {
 	  saveData(query);
   	  res.end(JSON.stringify(query));
-
   }
-  console.log(data);
+
 }).listen(port, '127.0.0.1');
 console.log(`Server running at http://127.0.0.1:${port}/`);
 
@@ -66,13 +72,14 @@ function saveData(query) {
 	}
 }
 
-function getData(query) {
+function getDevice(query) {
 	var id = query.id;
 	if(data[id]) {
-		var percentage = data[id];
+		var device = data[id];
 		return {
 			id: id,
-			percentage: percentage
+			deviceName: device.deviceName,
+			percentage: device.percentage
 		}
 	} else {
 		return {
@@ -80,17 +87,17 @@ function getData(query) {
 		}
 	}
 }
-function getNewDevice(query) {
+
+function addDevice(query) {
+	delete query.type;
 	var id = query.id;
-	if(data[id]) {
-		return {
-			id: id,
-			percentage: data[id]
-		}
-	} else {
-		return {
-			error: "not found"
-		}
-	}
+	data[id] = query;
+	return query;
+}
+
+function removeDevice(query) {
+	var id = query.id;
+	delete data[id]
+	return query;
 }
 
